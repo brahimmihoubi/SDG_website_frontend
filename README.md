@@ -1,7 +1,5 @@
 # Setif Developers Group (SDG) - System Documentation
 
-![SDG Banner](https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6)
-
 ## 0x00: Overview
 The **Setif Developers Group (SDG)** portal is a high-precision digital environment architected for the student tech community at **Farhat Abbas University Sétif 1 (UFAS 1)**. It serves as an central node for collaboration, academic research in software engineering, and the deployment of innovative student projects.
 
