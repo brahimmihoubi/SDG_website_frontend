@@ -1,8 +1,37 @@
-import React from 'react';
-import { Mail, Send, Terminal, Cpu, Network, Globe, Activity } from 'lucide-react';
-import { motion } from 'motion/react';
+import React, { useState } from 'react';
+import { Mail, Send, Terminal, Cpu, Network, Globe, Activity, Loader2, CheckCircle2 } from 'lucide-react';
+import { motion, AnimatePresence } from 'motion/react';
+import { Link } from 'react-router-dom';
+import { apiFetch } from '../api';
 
 const Contact = () => {
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    subject: 'SYSTEM_GENERAL',
+    content: ''
+  });
+  const [isDeploying, setIsDeploying] = useState(false);
+  const [isSuccess, setIsSuccess] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!formData.name || !formData.email || !formData.content) return;
+    setIsDeploying(true);
+    try {
+      await apiFetch('/api/messages', {
+        method: 'POST',
+        body: JSON.stringify(formData)
+      });
+      setIsSuccess(true);
+      setFormData({ name: '', email: '', subject: 'SYSTEM_GENERAL', content: '' });
+    } catch (error) {
+      alert("Transmission failed. Please check network uplink.");
+    } finally {
+      setIsDeploying(false);
+    }
+  };
+
   return (
     <div className="pt-24 min-h-screen bg-black">
       {/* Visual Header */}
@@ -55,10 +84,10 @@ const Contact = () => {
                 </div>
                 <h3 className="text-2xl font-black uppercase italic tracking-tighter">System Support?</h3>
                 <div className="grid grid-cols-1 gap-4">
-                   <button className="flex items-center justify-between bg-black border border-white/10 p-6 rounded-sm hover:border-blue-500 transition-all font-black text-[10px] uppercase tracking-widest text-gray-400 hover:text-white">
+                   <Link to="/faq" className="flex items-center justify-between bg-black border border-white/10 p-6 rounded-sm hover:border-blue-500 transition-all font-black text-[10px] uppercase tracking-widest text-gray-400 hover:text-white">
                      ARCHIVE_FAQ <Terminal className="w-4 h-4 text-blue-500" />
-                   </button>
-                   <button className="flex items-center justify-between bg-black border border-white/10 p-6 rounded-sm hover:border-blue-500 transition-all font-black text-[10px] uppercase tracking-widest text-gray-400 hover:text-white">
+                   </Link>
+                   <button className="flex items-center justify-between w-full bg-black border border-white/10 p-6 rounded-sm hover:border-blue-500 transition-all font-black text-[10px] uppercase tracking-widest text-gray-400 hover:text-white">
                      SECURE_CHAT <Cpu className="w-4 h-4 text-blue-500" />
                    </button>
                 </div>
@@ -74,37 +103,69 @@ const Contact = () => {
                       <div className="w-24 h-1 bg-blue-600"></div>
                    </div>
 
-                   <form className="space-y-10">
-                     <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
-                       <div className="space-y-3">
-                         <label className="text-[10px] font-black uppercase tracking-[0.3em] text-gray-600">User_Identity</label>
-                         <input type="text" placeholder="John_Doe" className="w-full bg-zinc-900 border border-white/10 rounded-sm px-8 py-5 focus:ring-1 focus:ring-blue-600 focus:outline-none font-mono text-sm text-blue-400 placeholder:opacity-30" />
-                       </div>
-                       <div className="space-y-3">
-                         <label className="text-[10px] font-black uppercase tracking-[0.3em] text-gray-600">Relay_Email</label>
-                         <input type="email" placeholder="j.doe@network.com" className="w-full bg-zinc-900 border border-white/10 rounded-sm px-8 py-5 focus:ring-1 focus:ring-blue-600 focus:outline-none font-mono text-sm text-blue-400 placeholder:opacity-30" />
-                       </div>
-                     </div>
+                   <AnimatePresence mode="wait">
+                     {isSuccess ? (
+                       <motion.div
+                         initial={{ opacity: 0, scale: 0.9 }}
+                         animate={{ opacity: 1, scale: 1 }}
+                         className="bg-blue-900/20 border border-blue-500/30 p-12 rounded-sm text-center space-y-6"
+                       >
+                         <div className="inline-flex items-center justify-center w-24 h-24 rounded-full bg-blue-500/20 text-blue-500 mb-4">
+                           <CheckCircle2 className="w-12 h-12" />
+                         </div>
+                         <h3 className="text-3xl font-black italic uppercase tracking-tighter text-white">TRANSMISSION SUCCESSFUL</h3>
+                         <p className="text-blue-400 font-mono text-sm">Payload secured. Mainframe will respond shortly.</p>
+                         <button 
+                           onClick={() => setIsSuccess(false)}
+                           className="mt-8 bg-zinc-900 text-white px-8 py-4 text-xs font-black uppercase tracking-widest hover:bg-white hover:text-black transition-colors"
+                         >
+                           SEND NEW PACKET
+                         </button>
+                       </motion.div>
+                     ) : (
+                       <motion.form 
+                         initial={{ opacity: 0 }}
+                         animate={{ opacity: 1 }}
+                         exit={{ opacity: 0 }}
+                         onSubmit={handleSubmit} 
+                         className="space-y-10"
+                       >
+                         <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+                           <div className="space-y-3">
+                             <label className="text-[10px] font-black uppercase tracking-[0.3em] text-gray-600">User_Identity</label>
+                             <input required type="text" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} placeholder="John_Doe" className="w-full bg-zinc-900 border border-white/10 rounded-sm px-8 py-5 focus:ring-1 focus:ring-blue-600 focus:outline-none font-mono text-sm text-blue-400 placeholder:opacity-30" />
+                           </div>
+                           <div className="space-y-3">
+                             <label className="text-[10px] font-black uppercase tracking-[0.3em] text-gray-600">Relay_Email</label>
+                             <input required type="email" value={formData.email} onChange={e => setFormData({...formData, email: e.target.value})} placeholder="j.doe@network.com" className="w-full bg-zinc-900 border border-white/10 rounded-sm px-8 py-5 focus:ring-1 focus:ring-blue-600 focus:outline-none font-mono text-sm text-blue-400 placeholder:opacity-30" />
+                           </div>
+                         </div>
 
-                     <div className="space-y-3">
-                       <label className="text-[10px] font-black uppercase tracking-[0.3em] text-gray-600">Buffer_Topic</label>
-                       <select className="w-full bg-zinc-900 border border-white/10 rounded-sm px-8 py-5 focus:ring-1 focus:ring-blue-600 focus:outline-none font-mono text-sm text-blue-400 appearance-none uppercase tracking-widest">
-                          <option>SYSTEM_GENERAL</option>
-                          <option>RESEARCH_PROPOSAL</option>
-                          <option>SECURITY_DISCLOSURE</option>
-                          <option>ALUMNI_NET</option>
-                       </select>
-                     </div>
+                         <div className="space-y-3">
+                           <label className="text-[10px] font-black uppercase tracking-[0.3em] text-gray-600">Buffer_Topic</label>
+                           <select value={formData.subject} onChange={e => setFormData({...formData, subject: e.target.value})} className="w-full bg-zinc-900 border border-white/10 rounded-sm px-8 py-5 focus:ring-1 focus:ring-blue-600 focus:outline-none font-mono text-sm text-blue-400 appearance-none uppercase tracking-widest">
+                              <option value="SYSTEM_GENERAL">SYSTEM_GENERAL</option>
+                              <option value="RESEARCH_PROPOSAL">RESEARCH_PROPOSAL</option>
+                              <option value="SECURITY_DISCLOSURE">SECURITY_DISCLOSURE</option>
+                              <option value="ALUMNI_NET">ALUMNI_NET</option>
+                           </select>
+                         </div>
 
-                     <div className="space-y-3">
-                       <label className="text-[10px] font-black uppercase tracking-[0.3em] text-gray-600">Data_Payload</label>
-                       <textarea rows={6} placeholder="Write your message here..." className="w-full bg-zinc-900 border border-white/10 rounded-sm px-8 py-5 focus:ring-1 focus:ring-blue-600 focus:outline-none font-mono text-sm text-blue-400 resize-none placeholder:opacity-30"></textarea>
-                     </div>
+                         <div className="space-y-3">
+                           <label className="text-[10px] font-black uppercase tracking-[0.3em] text-gray-600">Data_Payload</label>
+                           <textarea required rows={6} value={formData.content} onChange={e => setFormData({...formData, content: e.target.value})} placeholder="Write your message here..." className="w-full bg-zinc-900 border border-white/10 rounded-sm px-8 py-5 focus:ring-1 focus:ring-blue-600 focus:outline-none font-mono text-sm text-blue-400 resize-none placeholder:opacity-30"></textarea>
+                         </div>
 
-                     <button className="w-full bg-blue-600 text-white py-6 rounded-sm font-black text-xl uppercase tracking-widest hover:bg-white hover:text-black transition-all shadow-[0_0_40px_rgba(59,130,246,0.3)] flex items-center justify-center group">
-                       BROADCAST_MESSAGE <Send className="ml-4 w-6 h-6 group-hover:translate-x-2 group-hover:-translate-y-2 transition-transform" />
-                     </button>
-                   </form>
+                         <button disabled={isDeploying} className="w-full bg-blue-600 text-white py-6 rounded-sm font-black text-xl uppercase tracking-widest hover:bg-white hover:text-black transition-all shadow-[0_0_40px_rgba(59,130,246,0.3)] flex items-center justify-center group disabled:opacity-50">
+                           {isDeploying ? (
+                             <><Loader2 className="mr-4 w-6 h-6 animate-spin" /> ESTABLISHING LINK...</>
+                           ) : (
+                             <>BROADCAST_MESSAGE <Send className="ml-4 w-6 h-6 group-hover:translate-x-2 group-hover:-translate-y-2 transition-transform" /></>
+                           )}
+                         </button>
+                       </motion.form>
+                     )}
+                   </AnimatePresence>
                  </div>
                </div>
             </div>

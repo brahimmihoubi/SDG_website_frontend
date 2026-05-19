@@ -66,8 +66,8 @@ const AdminTeams = () => {
       }
       loadData();
       setIsModalOpen(false);
-    } catch (error) {
-      alert('Failed to save');
+    } catch (error: any) {
+      alert('Failed to save: ' + error.message);
     }
   };
 

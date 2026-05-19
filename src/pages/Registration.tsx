@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'motion/react';
 import { Terminal, Shield, Cpu, Code2, CheckCircle2, ArrowRight, ArrowLeft, Loader2 } from 'lucide-react';
+import ReCAPTCHA from 'react-google-recaptcha';
 import { apiFetch } from '../api';
 
 const Registration = () => {
@@ -15,7 +16,8 @@ const Registration = () => {
     dept: 'DEVELOPMENT',
     studyLevel: 'Licence 3',
     major: 'Computer Science',
-    img: ''
+    img: '',
+    recaptchaToken: null as string | null
   });
 
   const nextStep = () => {
@@ -45,6 +47,10 @@ const Registration = () => {
       alert("ACCESS DENIED: Please specify your Target Department and Desired Role before committing.");
       return;
     }
+    if (!formData.recaptchaToken) {
+      alert("SECURITY CHECK FAILED: Please complete the reCAPTCHA verification to prevent DDoS attacks.");
+      return;
+    }
     setIsDeploying(true);
     try {
       await apiFetch('/api/registrations', {
@@ -54,7 +60,7 @@ const Registration = () => {
       setIsDeploying(false);
       setStep(4);
     } catch (error) {
-      alert('Failed to commit registration. Check database connection.');
+      alert('Failed to commit registration. Check database connection or reCAPTCHA validation.');
       setIsDeploying(false);
     }
   };
@@ -190,6 +196,13 @@ const Registration = () => {
                     <div className="space-y-2">
                        <label className="text-[10px] font-black uppercase tracking-widest text-gray-500">Desired Role</label>
                        <input required type="text" value={formData.role} onChange={e => setFormData({...formData, role: e.target.value})} placeholder="e.g. Frontend Web Dev" className="w-full bg-zinc-900 border border-white/10 p-5 focus:ring-1 focus:ring-blue-600 focus:outline-none font-mono text-blue-400" />
+                    </div>
+                    <div className="pt-4 flex justify-center">
+                       <ReCAPTCHA
+                          sitekey={import.meta.env.VITE_RECAPTCHA_SITE_KEY || "6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI"}
+                          onChange={(token) => setFormData({...formData, recaptchaToken: token})}
+                          theme="dark"
+                       />
                     </div>
                   </div>
                 </motion.div>

@@ -19,6 +19,7 @@ export const apiFetch = async (endpoint: string, options: RequestInit = {}) => {
     if (response.status === 401) {
       localStorage.removeItem('sdg_admin_token');
       window.location.href = '/admin/login';
+      return new Promise(() => {}); // Never resolve so calling code doesn't throw
     }
     const errorData = await response.json().catch(() => ({}));
     throw new Error(errorData.detail || 'API request failed');

@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { LayoutDashboard, Users, Image as ImageIcon, FileText, Activity, Home as HomeIcon, LogOut, ClipboardList } from 'lucide-react';
+import { LayoutDashboard, Users, Image as ImageIcon, FileText, Activity, Home as HomeIcon, LogOut, ClipboardList, Mail } from 'lucide-react';
 
 const AdminLayout = ({ children }: { children: React.ReactNode }) => {
   const location = useLocation();
@@ -15,6 +15,7 @@ const AdminLayout = ({ children }: { children: React.ReactNode }) => {
   const menuItems = [
     { name: 'Dashboard', path: '/admin', icon: LayoutDashboard },
     { name: 'Registrations', path: '/admin/registrations', icon: ClipboardList },
+    { name: 'Support Inbox', path: '/admin/messages', icon: Mail },
     { name: 'Teams', path: '/admin/teams', icon: Users },
     { name: 'Team Members', path: '/admin/members', icon: Users },
     { name: 'Activities', path: '/admin/activities', icon: Activity },
