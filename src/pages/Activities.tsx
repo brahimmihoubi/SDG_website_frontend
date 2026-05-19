@@ -1,37 +1,14 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import { apiFetch } from '../api';
 import { motion } from 'motion/react';
 import { Terminal, Calendar, MapPin, ArrowRight, Code, ShieldCheck, Database, Zap } from 'lucide-react';
 
 const Activities = () => {
-  const events = [
-    {
-      title: 'SDG_HACK: 48h Sprint',
-      date: 'SEPT 12-14, 2026',
-      location: 'Computer Science Dept',
-      type: 'HACKATHON',
-      desc: 'Intensive collaborative programming endurance test. Deploying solutions for real-world scaling problems.',
-      icon: Code,
-      status: 'REG_OPEN'
-    },
-    {
-      title: 'CTF_ROOT: Security Audit',
-      date: 'OCT 05, 2026',
-      location: 'Virtual Environment',
-      type: 'SECURITY',
-      desc: 'Capture the Flag competition focusing on penetration testing, cryptography, and network forensics.',
-      icon: ShieldCheck,
-      status: 'UPCOMING'
-    },
-    {
-      title: 'Kube_CON: Cluster Management',
-      date: 'NOV 20, 2026',
-      location: 'Innovation Lab',
-      type: 'DEVOPS',
-      desc: 'Mastering Kubernetes orchestration and CI/CD pipelines in enterprise environments.',
-      icon: Terminal,
-      status: 'PLANNING'
-    }
-  ];
+  const [events, setEvents] = useState<any[]>([]);
+
+  useEffect(() => {
+    apiFetch('/api/activities').then(setEvents).catch(console.error);
+  }, []);
 
   const categories = [
     { name: 'Weekly Workshops', icon: Code, count: 24 },
@@ -98,22 +75,22 @@ const Activities = () => {
                 className="group relative bg-zinc-900/30 border border-white/5 hover:border-blue-500/30 p-1px transition-all rounded-sm overflow-hidden"
               >
                 <div className="bg-black p-8 lg:p-16 flex flex-col lg:flex-row items-center gap-12 lg:gap-20">
-                  <div className="w-24 h-24 lg:w-32 lg:h-32 border border-white/10 rounded-sm flex items-center justify-center shrink-0 group-hover:border-blue-500/50 group-hover:shadow-[0_0_30px_rgba(59,130,246,0.1)] transition-all duration-700">
-                    <event.icon className="w-10 h-10 lg:w-14 lg:h-14 text-blue-500" />
+                  <div className="w-24 h-24 lg:w-32 lg:h-32 border border-white/10 rounded-sm flex items-center justify-center shrink-0 group-hover:border-blue-500/50 group-hover:shadow-[0_0_30px_rgba(59,130,246,0.1)] transition-all duration-700 overflow-hidden">
+                    <img src={event.image || 'https://via.placeholder.com/150'} alt={event.title} className="w-full h-full object-cover" />
                   </div>
 
                   <div className="flex-1 space-y-6">
                     <div className="flex flex-wrap items-center gap-6">
                        <span className={`text-[10px] font-black uppercase tracking-[0.2em] px-3 py-1 rounded-sm border ${
-                         event.status === 'REG_OPEN' ? 'bg-blue-600/10 border-blue-600/40 text-blue-400' : 'bg-white/5 border-white/10 text-gray-500'
+                         event.status === 'Upcoming' ? 'bg-blue-600/10 border-blue-600/40 text-blue-400' : 'bg-white/5 border-white/10 text-gray-500'
                        }`}>
-                         {event.type} // {event.status}
+                         {event.status}
                        </span>
                        <div className="flex items-center text-xs font-mono text-gray-500"><Calendar className="w-4 h-4 mr-2" /> {event.date}</div>
-                       <div className="flex items-center text-xs font-mono text-gray-500"><MapPin className="w-4 h-4 mr-2" /> {event.location}</div>
+                       <div className="flex items-center text-xs font-mono text-gray-500"><MapPin className="w-4 h-4 mr-2" /> Sétif 1 University</div>
                     </div>
                     <h3 className="text-4xl lg:text-5xl font-black text-white italic uppercase tracking-tighter leading-tight group-hover:text-blue-500 transition-colors">{event.title}</h3>
-                    <p className="text-gray-400 font-medium text-lg leading-relaxed max-w-4xl">{event.desc}</p>
+                    <p className="text-gray-400 font-medium text-lg leading-relaxed max-w-4xl">{event.description}</p>
                   </div>
 
                   <div className="flex shrink-0">

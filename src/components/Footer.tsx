@@ -1,9 +1,16 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Terminal, Github, Twitter, Linkedin, Mail, Globe, ArrowUpRight } from 'lucide-react';
+import { Terminal, Github, Instagram, Linkedin, Mail, Globe, ArrowUpRight } from 'lucide-react';
 import logoSDG from '../../assets/logo_SDG.jpeg';
 
 const Footer = () => {
+  const socials = [
+    { Icon: Github, url: 'https://github.com/setif-developers-group' },
+    { Icon: Instagram, url: 'https://www.instagram.com/setif_developers_group/' },
+    { Icon: Linkedin, url: 'https://www.linkedin.com/company/setif-developers-group-sdg/?viewAsMember=true' },
+    { Icon: Mail, url: 'mailto:algeria.data@gmail.com' }
+  ];
+
   return (
     <footer className="bg-[#050505] border-t border-white/5 pt-32 pb-12 overflow-hidden relative">
       <div className="absolute inset-0 grid-bg opacity-10 pointer-events-none"></div>
@@ -24,9 +31,9 @@ const Footer = () => {
               A high-precision technological collective architecting the future of software and systems engineering.
             </p>
             <div className="flex space-x-4">
-              {[Github, Twitter, Linkedin, Mail].map((Icon, i) => (
-                <a key={i} href="#" className="w-10 h-10 border border-white/10 flex items-center justify-center rounded-sm hover:bg-blue-600 hover:border-blue-600 transition-all group">
-                  <Icon className="w-4 h-4 text-gray-500 group-hover:text-white" />
+              {socials.map((social, i) => (
+                <a key={i} href={social.url} target="_blank" rel="noopener noreferrer" className="w-10 h-10 border border-white/10 flex items-center justify-center rounded-sm hover:bg-blue-600 hover:border-blue-600 transition-all group">
+                  <social.Icon className="w-4 h-4 text-gray-500 group-hover:text-white" />
                 </a>
               ))}
             </div>

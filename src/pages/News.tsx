@@ -1,46 +1,15 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import { apiFetch } from '../api';
 import { motion } from 'motion/react';
 import { Calendar, User, ArrowRight, Share2, Search, Terminal, Activity } from 'lucide-react';
 
 const News = () => {
-  const posts = [
-    {
-      id: 1,
-      title: 'Deciphering Zero-Day: The Core Audit results',
-      excerpt: 'Our security team has completed a 72-hour deep-dive into legacy kernels. Here are the vulnerabilities we found and fixed.',
-      date: 'MAY 10, 2024',
-      author: 'SARAH_J',
-      category: 'SECURITY',
-      img: 'https://images.unsplash.com/photo-1550751827-4bd374c3f58b?auto=format&fit=crop&q=80&w=1000'
-    },
-    {
-      id: 2,
-      title: 'Migrating to Distributed Edge Computing',
-      excerpt: 'Why SDG is moving away from centralized nodes towards a peer-to-peer architectural model for student labs.',
-      date: 'APR 28, 2024',
-      author: 'AHMED_A',
-      category: 'INFRA',
-      img: 'https://images.unsplash.com/photo-1558494949-ef010cbdcc51?auto=format&fit=crop&q=80&w=1000'
-    },
-    {
-      id: 3,
-      title: 'AI Lab: Training LLMs on Local Clusters',
-      excerpt: 'A technical breakdown of our new GPU array performance when fine-tuning transformer models on technical documentation.',
-      date: 'APR 15, 2024',
-      author: 'SOFIA_R',
-      category: 'AI_LAB',
-      img: 'https://images.unsplash.com/photo-1591453089816-0fbb971b454c?auto=format&fit=crop&q=80&w=1000'
-    },
-    {
-      id: 4,
-      title: 'SDG_HACK winners: Project root-kit bypass',
-      excerpt: 'The winning team demonstrated an incredible understanding of low-level memory management and hardware interrupts.',
-      date: 'MAR 22, 2024',
-      author: 'MARCUS_C',
-      category: 'EVENTS',
-      img: 'https://images.unsplash.com/photo-1510511459019-5dee2c1a7eaa?auto=format&fit=crop&q=80&w=1000'
-    }
-  ];
+  const [posts, setPosts] = useState<any[]>([]);
+  const [currentPage, setCurrentPage] = useState(1);
+
+  useEffect(() => {
+    apiFetch('/api/blogs').then(setPosts).catch(console.error);
+  }, []);
 
   const categories = ['SECURITY', 'INFRA', 'AI_LAB', 'EVENTS', 'CODE_REVIEWS'];
 
@@ -117,13 +86,13 @@ const News = () => {
                 >
                   <div className="md:col-span-5 relative overflow-hidden rounded-sm aspect-video md:aspect-auto border border-white/5 group-hover:border-blue-500/30 transition-all duration-700">
                     <img 
-                      src={post.img} 
+                      src={post.image} 
                       alt={post.title}
                       className="w-full h-full object-cover grayscale opacity-60 group-hover:opacity-100 group-hover:grayscale-0 transition-all duration-1000 group-hover:scale-105"
                     />
                     <div className="absolute top-6 left-6">
                       <span className="bg-blue-600 text-white px-4 py-1.5 rounded-sm text-[9px] font-black uppercase tracking-[0.2em] shadow-2xl">
-                        {post.category}
+                        JOURNAL
                       </span>
                     </div>
                   </div>
@@ -152,11 +121,30 @@ const News = () => {
               {/* Pagination */}
               <div className="flex justify-center pt-20">
                 <div className="flex items-center space-x-6">
-                  <button className="w-14 h-14 rounded-sm border border-white/10 flex items-center justify-center font-mono font-black text-gray-500 hover:border-white hover:text-white transition-all">01</button>
-                  <button className="w-14 h-14 rounded-sm bg-blue-600 text-white flex items-center justify-center font-mono font-black shadow-[0_0_20px_rgba(59,130,246,0.5)]">02</button>
-                  <button className="w-14 h-14 rounded-sm border border-white/10 flex items-center justify-center font-mono font-black text-gray-500 hover:border-white hover:text-white transition-all">03</button>
+                  {[1, 2, 3].map((p) => (
+                    <button 
+                      key={p}
+                      onClick={() => setCurrentPage(p)}
+                      className={`w-14 h-14 rounded-sm flex items-center justify-center font-mono font-black transition-all ${
+                        currentPage === p 
+                          ? 'bg-blue-600 text-white shadow-[0_0_20px_rgba(59,130,246,0.5)]' 
+                          : 'border border-white/10 text-gray-500 hover:border-white hover:text-white'
+                      }`}
+                    >
+                      0{p}
+                    </button>
+                  ))}
                   <span className="text-white/20 font-mono">...</span>
-                  <button className="w-14 h-14 rounded-sm border border-white/10 flex items-center justify-center font-mono font-black text-gray-500 hover:border-white hover:text-white transition-all">16</button>
+                  <button 
+                    onClick={() => setCurrentPage(16)}
+                    className={`w-14 h-14 rounded-sm flex items-center justify-center font-mono font-black transition-all ${
+                      currentPage === 16 
+                        ? 'bg-blue-600 text-white shadow-[0_0_20px_rgba(59,130,246,0.5)]' 
+                        : 'border border-white/10 text-gray-500 hover:border-white hover:text-white'
+                    }`}
+                  >
+                    16
+                  </button>
                 </div>
               </div>
             </div>

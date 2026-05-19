@@ -1,20 +1,62 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'motion/react';
 import { Terminal, Shield, Cpu, Code2, CheckCircle2, ArrowRight, ArrowLeft, Loader2 } from 'lucide-react';
+import { apiFetch } from '../api';
 
 const Registration = () => {
+  const navigate = useNavigate();
   const [step, setStep] = useState(1);
   const [isDeploying, setIsDeploying] = useState(false);
+  const [formData, setFormData] = useState({
+    fullName: '',
+    email: '',
+    role: '',
+    dept: 'DEVELOPMENT',
+    studyLevel: 'Licence 3',
+    major: 'Computer Science',
+    img: ''
+  });
 
-  const nextStep = () => setStep(s => s + 1);
+  const nextStep = () => {
+    if (step === 1) {
+      if (!formData.fullName.trim() || !formData.email.trim() || !formData.img) {
+        alert("ACCESS DENIED: Please complete all Phase 1 fields (Name, Email, and Profile Image) before continuing.");
+        return;
+      }
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(formData.email.trim())) {
+        alert("ACCESS DENIED: Please enter a valid email address.");
+        return;
+      }
+    }
+    if (step === 2) {
+      if (!formData.studyLevel.trim() || !formData.major.trim()) {
+        alert("ACCESS DENIED: Please specify your Study Level and Major before continuing.");
+        return;
+      }
+    }
+    setStep(s => s + 1);
+  };
   const prevStep = () => setStep(s => s - 1);
 
-  const handleDeploy = () => {
+  const handleDeploy = async () => {
+    if (!formData.dept || !formData.role.trim()) {
+      alert("ACCESS DENIED: Please specify your Target Department and Desired Role before committing.");
+      return;
+    }
     setIsDeploying(true);
-    setTimeout(() => {
+    try {
+      await apiFetch('/api/registrations', {
+        method: 'POST',
+        body: JSON.stringify(formData)
+      });
       setIsDeploying(false);
-      nextStep();
-    }, 3000);
+      setStep(4);
+    } catch (error) {
+      alert('Failed to commit registration. Check database connection.');
+      setIsDeploying(false);
+    }
   };
 
   return (
@@ -59,14 +101,33 @@ const Registration = () => {
                     <h2 className="text-5xl font-black italic text-white leading-none tracking-tighter uppercase">WHO ARE YOU?</h2>
                   </div>
 
-                  <div className="space-y-8">
+                  <div className="space-y-6">
                     <div className="space-y-2">
                        <label className="text-[10px] font-black uppercase tracking-widest text-gray-500">Legal_Identifier</label>
-                       <input type="text" placeholder="FULL_NAME" className="w-full bg-zinc-900 border border-white/10 p-5 focus:ring-1 focus:ring-blue-600 focus:outline-none font-mono text-blue-400" />
+                       <input required type="text" value={formData.fullName} onChange={e => setFormData({...formData, fullName: e.target.value})} placeholder="FULL_NAME" className="w-full bg-zinc-900 border border-white/10 p-5 focus:ring-1 focus:ring-blue-600 focus:outline-none font-mono text-blue-400" />
                     </div>
                     <div className="space-y-2">
                        <label className="text-[10px] font-black uppercase tracking-widest text-gray-500">Institutional_Mail</label>
-                       <input type="email" placeholder="EDU_MAIL@UNIVERSITY.EDU" className="w-full bg-zinc-900 border border-white/10 p-5 focus:ring-1 focus:ring-blue-600 focus:outline-none font-mono text-blue-400" />
+                       <input required type="email" value={formData.email} onChange={e => setFormData({...formData, email: e.target.value})} placeholder="EDU_MAIL@UNIVERSITY.EDU" className="w-full bg-zinc-900 border border-white/10 p-5 focus:ring-1 focus:ring-blue-600 focus:outline-none font-mono text-blue-400" />
+                    </div>
+                    <div className="space-y-2">
+                       <label className="text-[10px] font-black uppercase tracking-widest text-gray-500">Profile Image</label>
+                       <input required type="file" accept="image/*" onChange={e => {
+                         const file = e.target.files?.[0];
+                         if (file) {
+                           const reader = new FileReader();
+                           reader.onloadend = () => {
+                             setFormData({...formData, img: reader.result as string});
+                           };
+                           reader.readAsDataURL(file);
+                         }
+                       }} className="w-full bg-zinc-900 border border-white/10 p-5 focus:ring-1 focus:ring-blue-600 focus:outline-none font-mono text-blue-400" />
+                       {formData.img && (
+                         <div className="mt-2 flex items-center space-x-4">
+                           <img src={formData.img} alt="Preview" className="w-12 h-12 rounded-[10px] object-cover border border-white/10" />
+                           <span className="text-[9px] font-mono text-green-500 uppercase tracking-widest">Image Loaded Checksum OK</span>
+                         </div>
+                       )}
                     </div>
                   </div>
                 </motion.div>
@@ -82,18 +143,20 @@ const Registration = () => {
                 >
                   <div className="space-y-4">
                     <div className="flex items-center space-x-2 text-blue-500 font-mono text-[10px] tracking-widest uppercase">
-                      <Cpu className="w-4 h-4" /> <span>Phase_02: Specialization_Config</span>
+                      <Cpu className="w-4 h-4" /> <span>Phase_02: Academic_Config</span>
                     </div>
-                    <h2 className="text-5xl font-black italic text-white leading-none tracking-tighter uppercase">CORE STACK.</h2>
+                    <h2 className="text-5xl font-black italic text-white leading-none tracking-tighter uppercase">ACADEMICS.</h2>
                   </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {['Software_Engineer', 'Infosec_Researcher', 'Data_Architect', 'Infrastructure_Lead'].map((role) => (
-                      <button key={role} className="p-6 border border-white/10 bg-zinc-900/50 hover:border-blue-500 transition-all text-left group">
-                         <div className="text-[10px] font-black uppercase tracking-widest text-gray-500 mb-2 group-hover:text-blue-500">NODE_TYPE</div>
-                         <div className="text-white font-bold italic tracking-tight">{role}</div>
-                      </button>
-                    ))}
+                  <div className="space-y-6">
+                    <div className="space-y-2">
+                       <label className="text-[10px] font-black uppercase tracking-widest text-gray-500">Study Level</label>
+                       <input required type="text" value={formData.studyLevel} onChange={e => setFormData({...formData, studyLevel: e.target.value})} placeholder="e.g. Licence 3" className="w-full bg-zinc-900 border border-white/10 p-5 focus:ring-1 focus:ring-blue-600 focus:outline-none font-mono text-blue-400" />
+                    </div>
+                    <div className="space-y-2">
+                       <label className="text-[10px] font-black uppercase tracking-widest text-gray-500">Major / Field of Study</label>
+                       <input required type="text" value={formData.major} onChange={e => setFormData({...formData, major: e.target.value})} placeholder="e.g. Computer Science" className="w-full bg-zinc-900 border border-white/10 p-5 focus:ring-1 focus:ring-blue-600 focus:outline-none font-mono text-blue-400" />
+                    </div>
                   </div>
                 </motion.div>
               )}
@@ -108,25 +171,26 @@ const Registration = () => {
                 >
                   <div className="space-y-4">
                     <div className="flex items-center space-x-2 text-blue-500 font-mono text-[10px] tracking-widest uppercase">
-                      <Shield className="w-4 h-4" /> <span>Phase_03: Security_Review</span>
+                      <Shield className="w-4 h-4" /> <span>Phase_03: Club_Config</span>
                     </div>
-                    <h2 className="text-5xl font-black italic text-white leading-none tracking-tighter uppercase">FINAL_ENV.</h2>
+                    <h2 className="text-5xl font-black italic text-white leading-none tracking-tighter uppercase">ALIGNMENT.</h2>
                   </div>
 
                   <div className="space-y-6">
-                    <div className="p-6 bg-zinc-900 border border-blue-500/30 rounded-sm space-y-4">
-                       <p className="font-mono text-xs text-blue-400">
-                         &gt; Initializing final checksum... <br/>
-                         &gt; Verifying integrity... <br/>
-                         &gt; Peer review required: YES
-                       </p>
+                    <div className="space-y-2">
+                       <label className="text-[10px] font-black uppercase tracking-widest text-gray-500">Target Department</label>
+                       <select value={formData.dept} onChange={e => setFormData({...formData, dept: e.target.value})} className="w-full bg-zinc-900 border border-white/10 p-5 focus:ring-1 focus:ring-blue-600 focus:outline-none font-sans text-blue-400">
+                         <option value="ADMINISTRATION">ADMINISTRATION</option>
+                         <option value="DEVELOPMENT">DEVELOPMENT</option>
+                         <option value="DESIGN">DESIGN</option>
+                         <option value="MEDIA">MEDIA</option>
+                         <option value="ORGANIZATION">ORGANIZATION</option>
+                       </select>
                     </div>
-                    <label className="flex items-center space-x-4 cursor-pointer group">
-                       <input type="checkbox" className="w-6 h-6 bg-black border border-white/10 rounded-sm checked:bg-blue-600 transition-all" />
-                       <span className="text-xs text-gray-400 font-medium uppercase tracking-widest leading-relaxed">
-                         I AGREE TO ALL PROTOCOLS AND SDG ETHICAL BOUNDARIES.
-                       </span>
-                    </label>
+                    <div className="space-y-2">
+                       <label className="text-[10px] font-black uppercase tracking-widest text-gray-500">Desired Role</label>
+                       <input required type="text" value={formData.role} onChange={e => setFormData({...formData, role: e.target.value})} placeholder="e.g. Frontend Web Dev" className="w-full bg-zinc-900 border border-white/10 p-5 focus:ring-1 focus:ring-blue-600 focus:outline-none font-mono text-blue-400" />
+                    </div>
                   </div>
                 </motion.div>
               )}
@@ -144,10 +208,13 @@ const Registration = () => {
                    <div className="space-y-4">
                      <h2 className="text-5xl font-black italic text-white uppercase tracking-tighter">NODE_DEPLOYED.</h2>
                      <p className="text-gray-500 font-medium uppercase tracking-widest leading-loose">
-                       Your identity has been added to the SDG array. <br/> Check your mail for initialization scripts.
+                       Your identity has been added to the SDG array. <br /> Check your mail for initialization scripts.
                      </p>
                    </div>
-                   <button className="bg-white text-black px-12 py-5 rounded-sm font-black text-xs uppercase tracking-widest hover:bg-blue-600 hover:text-white transition-all shadow-2xl">
+                   <button 
+                     onClick={() => navigate('/')}
+                     className="bg-white text-black px-12 py-5 rounded-sm font-black text-xs uppercase tracking-widest hover:bg-blue-600 hover:text-white transition-all shadow-2xl"
+                   >
                      Return_to_Core
                    </button>
                 </motion.div>

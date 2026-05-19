@@ -1,54 +1,16 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { apiFetch } from '../api';
 import { motion, AnimatePresence } from 'motion/react';
 import { X, ZoomIn, Cpu, Terminal, Camera, Hash } from 'lucide-react';
 
 const Gallery = () => {
   const [selectedImage, setSelectedImage] = useState<null | number>(null);
 
-  const images = [
-    {
-      url: 'https://images.unsplash.com/photo-1550751827-4bd374c3f58b?auto=format&fit=crop&q=80&w=1000',
-      title: 'Infrastructure Maintenance // DC-01',
-      category: 'Nodes',
-      date: 'MARCH 2024',
-      hash: '0x3F2A'
-    },
-    {
-      url: 'https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format&fit=crop&q=80&w=1000',
-      title: 'Global_HACK Live Dashboard',
-      category: 'Events',
-      date: 'APRIL 2024',
-      hash: '0x91B4'
-    },
-    {
-      url: 'https://images.unsplash.com/photo-1515879218367-8466d910aaa4?auto=format&fit=crop&q=80&w=1000',
-      title: 'Cryptographic Protocol Testing',
-      category: 'Research',
-      date: 'JANUARY 2024',
-      hash: '0xEE32'
-    },
-    {
-      url: 'https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?auto=format&fit=crop&q=80&w=1000',
-      title: 'Kernel Development Workshop',
-      category: 'Workshops',
-      date: 'MAY 2024',
-      hash: '0x77AF'
-    },
-    {
-      url: 'https://images.unsplash.com/photo-1504384308090-c894fdcc538d?auto=format&fit=crop&q=80&w=1000',
-      title: 'Collaborative Coding Session',
-      category: 'Development',
-      date: 'FEBRUARY 2024',
-      hash: '0x22DC'
-    },
-    {
-      url: 'https://images.unsplash.com/photo-1558494949-ef010cbdcc51?auto=format&fit=crop&q=80&w=1000',
-      title: 'Server Array Initialization',
-      category: 'Nodes',
-      date: 'DECEMBER 2023',
-      hash: '0xCC01'
-    }
-  ];
+  const [images, setImages] = useState<any[]>([]);
+
+  useEffect(() => {
+    apiFetch('/api/gallery').then(setImages).catch(console.error);
+  }, []);
 
   const categories = ['All', 'Nodes', 'Events', 'Research', 'Workshops', 'Development'];
   const [activeCategory, setActiveCategory] = useState('All');
@@ -125,7 +87,7 @@ const Gallery = () => {
               >
                 <div className="aspect-[4/3] grayscale group-hover:grayscale-0 transition-all duration-700">
                   <img 
-                    src={img.url} 
+                    src={img.image} 
                     alt={img.title}
                     className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-all duration-700 group-hover:scale-105"
                   />
@@ -133,12 +95,12 @@ const Gallery = () => {
                 <div className="absolute inset-x-0 bottom-0 p-8 translate-y-10 group-hover:translate-y-0 transition-all duration-500 bg-gradient-to-t from-black via-black/80 to-transparent">
                   <div className="space-y-4">
                     <div className="flex items-center space-x-3 text-[10px] font-mono text-blue-500 uppercase tracking-widest">
-                       <Hash className="w-3 h-3" /> <span>{img.hash}</span>
+                       <Hash className="w-3 h-3" /> <span>0x{img.id}</span>
                        <span className="text-gray-600">|</span>
                        <span>{img.category}</span>
                     </div>
                     <h3 className="text-xl font-black text-white italic uppercase tracking-tighter leading-tight">{img.title}</h3>
-                    <div className="text-[10px] font-black text-gray-500 uppercase tracking-widest">{img.date}</div>
+                    <div className="text-[10px] font-black text-gray-500 uppercase tracking-widest">LOGGED</div>
                   </div>
                 </div>
                 <div className="absolute top-8 right-8 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -169,18 +131,18 @@ const Gallery = () => {
               onClick={(e) => e.stopPropagation()}
             >
               <img 
-                src={images[selectedImage].url} 
+                src={images[selectedImage].image} 
                 alt={images[selectedImage].title}
                 className="w-full h-auto opacity-90"
               />
               <div className="absolute bottom-0 inset-x-0 p-12 bg-gradient-to-t from-black to-transparent">
                  <div className="flex flex-col md:flex-row justify-between items-end gap-6">
                     <div className="text-left space-y-4">
-                       <div className="text-blue-500 font-mono text-xs tracking-widest uppercase">Buffer_Ref: {images[selectedImage].hash}</div>
+                       <div className="text-blue-500 font-mono text-xs tracking-widest uppercase">Buffer_Ref: 0x{images[selectedImage].id}</div>
                        <h2 className="text-4xl font-black text-white italic uppercase tracking-tighter">{images[selectedImage].title}</h2>
                     </div>
                     <div className="text-right text-gray-500 font-black uppercase tracking-widest text-xs italic">
-                       Log_Date: {images[selectedImage].date}
+                       Log_Date: LOGGED
                     </div>
                  </div>
               </div>

@@ -1,12 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Linkedin, Mail, Github, Terminal, PenTool, Camera, Calendar, ClipboardList, X } from 'lucide-react';
+import * as Icons from 'lucide-react';
+import { apiFetch } from '../api';
 import { Link, useSearchParams } from 'react-router-dom';
 
 const Team = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const [activeDept, setActiveDept] = useState(searchParams.get('dept') || 'ALL');
   const [selectedMember, setSelectedMember] = useState<any>(null);
+
+  const [departments, setDepartments] = useState<any[]>([]);
+  const [members, setMembers] = useState<any[]>([]);
 
   useEffect(() => {
     const dept = searchParams.get('dept');
@@ -16,6 +21,11 @@ const Team = () => {
       setActiveDept('ALL');
     }
   }, [searchParams]);
+
+  useEffect(() => {
+    apiFetch('/api/teams').then(setDepartments).catch(console.error);
+    apiFetch('/api/members').then(setMembers).catch(console.error);
+  }, []);
 
   const handleDeptChange = (dept: string) => {
     setActiveDept(dept);
@@ -27,70 +37,7 @@ const Team = () => {
     setSearchParams(searchParams);
   };
 
-  const departments = [
-    { name: 'ADMINISTRATION', icon: ClipboardList },
-    { name: 'DEVELOPMENT', icon: Terminal },
-    { name: 'DESIGN', icon: PenTool },
-    { name: 'MEDIA', icon: Camera },
-    { name: 'ORGANIZATION', icon: Calendar }
-  ];
 
-  const members = [
-    {
-      name: 'Marcus Chen',
-      role: 'President',
-      dept: 'ADMINISTRATION',
-      bio: 'Leading the club towards success.',
-      studyLevel: 'Master 2',
-      major: 'Computer Science',
-      img: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=1000'
-    },
-    {
-      name: 'Sarah Jenkins',
-      role: 'Lead Developer',
-      dept: 'DEVELOPMENT',
-      bio: 'Building the core infrastructure.',
-      studyLevel: 'Master 1',
-      major: 'Software Engineering',
-      img: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&q=80&w=1000'
-    },
-    {
-      name: 'Ahmed Al-Farsi',
-      role: 'Head of Design',
-      dept: 'DESIGN',
-      bio: 'Crafting pixel-perfect designs.',
-      studyLevel: 'Licence 3',
-      major: 'Information Systems',
-      img: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=1000'
-    },
-    {
-      name: 'Sofia Rossi',
-      role: 'Media Manager',
-      dept: 'MEDIA',
-      bio: 'Capturing moments and managing socials.',
-      studyLevel: 'Master 1',
-      major: 'Digital Marketing',
-      img: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&q=80&w=1000'
-    },
-    {
-      name: 'James Wilson',
-      role: 'Event Coordinator',
-      dept: 'ORGANIZATION',
-      bio: 'Organizing the best events.',
-      studyLevel: 'Licence 2',
-      major: 'Management',
-      img: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&q=80&w=1000'
-    },
-    {
-      name: 'Elena Volkov',
-      role: 'Frontend Architect',
-      dept: 'DEVELOPMENT',
-      bio: 'Expert in React, TypeScript and high-performance animations.',
-      studyLevel: 'Master 2',
-      major: 'Artificial Intelligence',
-      img: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&q=80&w=1000'
-    }
-  ];
 
   return (
     <div className="pt-24 min-h-screen bg-black">
@@ -124,20 +71,23 @@ const Team = () => {
             >
               <span>ALL</span>
             </button>
-            {departments.map((dept, i) => (
-              <button
-                key={i}
-                onClick={() => handleDeptChange(dept.name)}
-                className={`flex items-center space-x-3 text-[10px] font-black uppercase tracking-[0.2em] px-6 py-3 rounded-sm transition-all border ${
-                  activeDept === dept.name
-                    ? 'bg-blue-600 border-blue-500 text-white shadow-[0_0_20px_rgba(59,130,246,0.5)]'
-                    : 'bg-black border-white/10 text-gray-400 hover:border-blue-500/50 hover:text-white'
-                }`}
-              >
-                <dept.icon className={`w-4 h-4 ${activeDept === dept.name ? 'text-white' : 'text-blue-500'}`} />
-                <span>{dept.name}</span>
-              </button>
-            ))}
+            {departments.map((dept, i) => {
+              const DeptIcon = (Icons as any)[dept.icon] || Icons.Users;
+              return (
+                <button
+                  key={i}
+                  onClick={() => handleDeptChange(dept.name)}
+                  className={`flex items-center space-x-3 text-[10px] font-black uppercase tracking-[0.2em] px-6 py-3 rounded-sm transition-all border ${
+                    activeDept === dept.name
+                      ? 'bg-blue-600 border-blue-500 text-white shadow-[0_0_20px_rgba(59,130,246,0.5)]'
+                      : 'bg-black border-white/10 text-gray-400 hover:border-blue-500/50 hover:text-white'
+                  }`}
+                >
+                  <DeptIcon className={`w-4 h-4 ${activeDept === dept.name ? 'text-white' : 'text-blue-500'}`} />
+                  <span>{dept.name}</span>
+                </button>
+              );
+            })}
           </div>
         </div>
       </section>
@@ -157,12 +107,13 @@ const Team = () => {
                 .filter(dept => activeDept === 'ALL' || activeDept === dept.name)
                 .map((dept, deptIndex) => {
                   const deptMembers = members.filter(m => m.dept === dept.name);
+                  const DeptIcon = (Icons as any)[dept.icon] || Icons.Users;
                   if (deptMembers.length === 0) return null;
                   return (
                     <div key={deptIndex} className="mb-24 last:mb-0">
                       <div className="flex items-center space-x-4 mb-12">
                         <div className="bg-blue-600/10 p-3 rounded-sm border border-blue-500/20">
-                          <dept.icon className="w-8 h-8 text-blue-500" />
+                          <DeptIcon className="w-8 h-8 text-blue-500" />
                         </div>
                         <div>
                           <h2 className="text-4xl font-black italic uppercase tracking-tighter text-white">{dept.name}</h2>

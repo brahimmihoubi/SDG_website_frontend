@@ -1,18 +1,26 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&family=Poppins:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
 @import "tailwindcss";
 
 @theme {
-  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: "Poppins", ui-sans-serif, system-ui, sans-serif;
   --font-display: "Poppins", ui-sans-serif, system-ui, sans-serif;
-  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+  --font-mono: "Poppins", ui-monospace, SFMono-Regular, monospace;
 }
 
 @layer base {
   body {
     @apply bg-black text-white;
+    font-family: var(--font-sans);
   }
   h1, h2, h3, h4, h5, h6 {
     font-family: var(--font-display);
+  }
+  button, 
+  a[class*="px-"][class*="py-"][class*="bg-"] {
+    border-radius: 10px !important;
+  }
+  .chatbot-circle {
+    border-radius: 50% !important;
   }
 }
 
@@ -29,4 +37,104 @@
     linear-gradient(to right, rgba(255,255,255,0.05) 1px, transparent 1px),
     linear-gradient(to bottom, rgba(255,255,255,0.05) 1px, transparent 1px);
   background-size: 40px 40px;
+}
+
+/* ==========================================
+   MOBILE TYPOGRAPHY, LINE HEIGHT & TOUCH TARGET RULES
+   (Enforced specs from mobile guidelines chart)
+   ========================================== */
+@media (max-width: 767px) {
+  /* FORCE POPPINS GLOBAL BRAND TYPOGRAPHY FOR MOBILE VERSION */
+  *, body, h1, h2, h3, h4, h5, h6, p, span, a, button, input, select, textarea, label {
+    font-family: 'Poppins', var(--font-sans), ui-sans-serif, system-ui, sans-serif !important;
+  }
+
+  /* FONT SIZES & LINE HEIGHTS */
+  h1, .text-h1 {
+    font-size: 28px !important;
+    line-height: 1.25 !important;
+  }
+  h2, .text-h2 {
+    font-size: 22px !important;
+    line-height: 1.25 !important;
+  }
+  h3, .text-h3 {
+    font-size: 18px !important;
+    line-height: 1.25 !important;
+  }
+  body, p, .text-body, input, select, textarea {
+    font-size: 16px !important; /* Prevents auto-zoom on iOS Safari! */
+    line-height: 1.65 !important;
+  }
+  .text-secondary, .text-sm {
+    font-size: 14px !important;
+    line-height: 1.4 !important;
+  }
+  .text-label, .text-xs, .badge, label {
+    font-size: 12px !important;
+    line-height: 1.2 !important;
+  }
+  .text-legal {
+    font-size: 11px !important; /* Strict absolute minimum limit */
+    line-height: 1.2 !important;
+  }
+
+  /* TAP / TOUCH TARGET SIZES */
+  button, 
+  input[type="submit"], 
+  .btn, 
+  a[class*="px-"][class*="py-"] {
+    min-height: 48px !important; /* Apple & Google minimum tap target */
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+  }
+
+  input, select, textarea {
+    min-height: 48px !important; /* iOS safe height */
+  }
+
+  /* Spacing constraint to prevent mis-clicks (min 8px separation) */
+  button + button, a + a, button + a, a + button {
+    margin-left: 8px !important;
+  }
+
+  /* Safe tap target for icon-only components */
+  .icon-btn, button > svg, a > svg {
+    padding: 8px !important;
+    box-sizing: content-box !important;
+  }
+
+  /* PREMIUM MOBILE UX & ALIGNMENT ENHANCEMENTS */
+  * {
+    -webkit-tap-highlight-color: transparent !important; /* Eliminates ugly gray/blue highlight blocks on click */
+    outline: none !important;
+  }
+
+  /* Center mobile page headings and limit width for maximum readability */
+  h1, h2, h3 {
+    text-align: center !important;
+    word-break: break-word !important;
+    overflow-wrap: break-word !important;
+  }
+
+  /* Harmonize mobile container layouts (16px standard side gutters) */
+  .container {
+    padding-left: 16px !important;
+    padding-right: 16px !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+  }
+
+  /* Guarantee smooth scroll across mobile browser engines */
+  html {
+    scroll-behavior: smooth !important;
+    text-rendering: optimizeLegibility !important;
+    -webkit-font-smoothing: antialiased !important;
+  }
+
+  /* Clean up grid spacing on mobile screens */
+  .grid {
+    gap: 16px !important;
+  }
 }

@@ -132,7 +132,7 @@ const Home = () => {
             ].map((stat, i) => (
               <div key={i} className="space-y-4">
                 <stat.icon className="w-5 h-5 text-blue-500" />
-                <div className="text-6xl font-mono font-black text-white tracking-tighter">
+                <div className="text-3xl md:text-6xl font-mono font-black text-white tracking-tighter">
                    {stat.value}
                 </div>
                 <div className="text-[10px] font-black text-gray-500 uppercase tracking-[0.2em]">{stat.label}</div>
